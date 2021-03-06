@@ -1,0 +1,46 @@
+{
+  "multiprocessing": {
+    "valid":  false,
+    "max_proc": 2
+  },
+  "experiment": {
+    "exp": "m"
+  },
+  "data": {
+    "method": 0,
+    "param": {
+      "N": 200,
+      "p": 200,
+      "s": 5,
+      "k": 0.25,
+      "sigma": 0.25
+    }
+  },
+  "network": {
+    "method": 0,
+    "param": {
+      "m": [5,10,20]
+    }
+  },
+  "solver": {
+    "model": [0,1,2],
+    "param": {
+      "max_iteration":  100000,
+      "terminate_condition":  2e-7,
+      "solver_type": 0,
+      "step_size": [
+          0.2,
+          0.01,
+          0.05
+      ],
+      "constraint_param": 0.009
+    },
+    "loss": "statistic_log_loss"
+  },
+  "plot": {
+    "x_axis": "iteration",
+    "y_axis": "loss",
+    "stack": "m",
+    "parameter": ["N","p","s","m","step_size","constraint_param"]
+  }
+}
