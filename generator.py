@@ -23,5 +23,12 @@ class Generator:
         # generating ground truth
         theta = np.zeros((self.p, 1))
         theta[0:self.s] = 1
+        # Y = X @ theta + epsilon
+        # return X, Y, theta
+        # theta = np.random.normal(0, 1, (self.p, 1))
+        # theta_abs = np.abs(theta)
+        # threshold = np.quantile(theta_abs, 1 - self.s / self.p)
+        # mask = theta_abs > threshold
+        # theta = mask * theta
         Y = X @ theta + epsilon
         return X, Y, theta

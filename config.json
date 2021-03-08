@@ -4,7 +4,7 @@
     "max_proc": 2
   },
   "experiment": {
-    "exp": "m"
+    "exp": "constraint_param"
   },
   "data": {
     "method": 0,
@@ -19,28 +19,28 @@
   "network": {
     "method": 0,
     "param": {
-      "m": [5,10,20]
+      "m": 5
     }
   },
   "solver": {
     "model": [0,1,2],
     "param": {
-      "max_iteration":  100000,
+      "max_iteration":  50000,
       "terminate_condition":  2e-7,
       "solver_type": 0,
       "step_size": [
-          0.2,
-          0.01,
-          0.05
+          0.3515,
+          0.096,
+          0.07
       ],
-      "constraint_param": 0.009
+      "constraint_param": [0.004,0.005,0.006, 0.007, 0.008, 0.009, 0.01, 0.011,0.012,0.013,0.014]
     },
     "loss": "statistic_log_loss"
   },
   "plot": {
-    "x_axis": "iteration",
+    "x_axis": "constraint_param",
     "y_axis": "loss",
-    "stack": "m",
+    "stack": "model",
     "parameter": ["N","p","s","m","step_size","constraint_param"]
   }
 }

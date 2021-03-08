@@ -1,5 +1,5 @@
 import numpy as np
-
+from projection import euclidean_proj_l1ball as proj
 
 class Solver:
     def __init__(self, max_iteration, step_size, terminate_condition):
@@ -34,9 +34,10 @@ class Lasso(Solver):
         C_2 = X.T @ Y
         # define gradient methods
 
-        def _lagrangian(t):
+        def _lagrangian(t, radius=10):
             t = t - self.step_size * (1 / N * (C_1 @ t - C_2))
             t = np.sign(t) * np.clip(np.abs(t) - self.step_size * self.lmda, 0, None)
+            t = proj(t, radius)
             return t
 
         def _projected(t):
@@ -90,11 +91,15 @@ class DistributedLasso(Lasso):
             E.append(y[i].T @ x[i])
 
         # define gradient methods
-        def _lagrangian(t):
+        def _lagrangian(t, radius=10):
             con = self.w @ t
             for i in range(self.m):
                 t[i] = con[i] - self.step_size / n * (-E[i] + t[i].T @ D[i])
                 t[i] = np.sign(t[i]) * np.clip(np.abs(t[i]) - self.step_size * self.lmda, 0, None)
+                # projection
+                temp = np.expand_dims(t[i].copy(), axis=1)
+                temp = proj(temp, radius)
+                t[i] = temp.squeeze()
             return t
 
         def _projected(t):
@@ -138,10 +143,14 @@ class LocalizedLasso(Lasso):
             D.append(x[i].T @ x[i])
             E.append(y[i].T @ x[i])
 
-        def _lagrangian(t):
+        def _lagrangian(t, radius=10):
             for i in range(self.m):
                 t[i] = t[i] - self.step_size * (t[i].T @ D[i].T).T / n + self.step_size * E[i].squeeze() / n
                 t[i] = np.sign(t[i]) * np.clip(np.abs(t[i]) - self.step_size * self.lmda, 0, None)
+                # projection
+                temp = np.expand_dims(t[i].copy(), axis=1)
+                temp = proj(temp, radius)
+                t[i] = temp.squeeze()
             return t
 
         def _projected(t):
