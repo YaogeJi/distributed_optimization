@@ -79,7 +79,10 @@ def plot(q:queue.Queue, config:dict):
     title = ''
     for seg in parameter:
         if seg != x_axis:
-            title += seg + '=' + str(param_dict[seg]) + ' '
+            if seg == 'constraint_param':
+                title += r'$\lambda$' + '=' + str(param_dict[seg]) + ' '
+            else:
+                title += seg + '=' + str(param_dict[seg]) + ' '
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)

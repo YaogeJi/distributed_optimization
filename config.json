@@ -9,11 +9,11 @@
   "data": {
     "method": 0,
     "param": {
-      "N": 200,
-      "p": 200,
+      "N": 250,
+      "d": 800,
       "s": 5,
       "k": 0.25,
-      "sigma": 0.25
+      "sigma": 0.5
     }
   },
   "network": {
@@ -25,22 +25,22 @@
   "solver": {
     "model": [0,1,2],
     "param": {
-      "max_iteration":  500,
-      "terminate_condition":  2e-7,
+      "max_iteration":  7000,
+      "terminate_condition":  2e-5,
       "solver_type": 0,
       "step_size": [
-          0.3515,
-          0.096,
+          0.17,
+          0.005,
           0.07
       ],
-      "constraint_param": [0.004,0.005]
+      "constraint_param": [0.033]
     },
     "loss": "statistic_log_loss"
   },
   "plot": {
-    "x_axis": "constraint_param",
+    "x_axis": "iteration",
     "y_axis": "loss",
     "stack": "model",
-    "parameter": ["N","p","s","m","constraint_param"]
+    "parameter": ["N","d","s","m","step_size"]
   }
 }

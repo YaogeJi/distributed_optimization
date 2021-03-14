@@ -12,10 +12,10 @@ multiprocessing management
 
 def exp(instance, exp_info, X, Y, ground_truth, loss, q, exp_no):
     if loss == 'optimization_log_loss':
-        theta_hat, _, error_code = instance.fit(X, Y)
-        theta_hat, loss_list, error_code = instance.fit(X, Y, comparison=theta_hat)
+        theta_hat, _, error_code = instance.fit(X, Y, ground_truth)
+        theta_hat, loss_list, error_code = instance.fit(X, Y, ground_truth, comparison=theta_hat)
     elif loss == 'statistic_log_loss':
-        theta_hat, loss_list, error_code = instance.fit(X, Y, comparison=ground_truth)
+        theta_hat, loss_list, error_code = instance.fit(X, Y, ground_truth, comparison=ground_truth)
     else:
         raise NotImplementedError("Unimplemented loss function")
     print(loss_list[-1])

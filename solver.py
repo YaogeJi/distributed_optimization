@@ -7,7 +7,7 @@ class Solver:
         self.step_size = step_size
         self.terminate_condition = terminate_condition
 
-    def fit(self, X, Y, comparison):
+    def fit(self, X, Y, ground_truth, comparison):
         raise NotImplementedError
 
     def show_param(self):
@@ -23,21 +23,25 @@ class Lasso(Solver):
         else:
             self.r = constraint_param
 
-    def fit(self, X, Y, comparison=None):
+    def fit(self, X, Y, grount_truth, comparison=None):
+        r = np.linalg.norm(grount_truth, ord=1) * 1.01
         # initialize parameters we need
         loss = []
-        N, p = X.shape
+        N, d = X.shape
         # initialize iterates
-        theta = 0.5 * np.ones((p, 1))
+        theta = 0.5 * np.ones((d, 1))
         # calculate value we need to use.
         C_1 = X.T @ X
         C_2 = X.T @ Y
         # define gradient methods
 
-        def _lagrangian(t, radius=10):
+        def _lagrangian(t):
             t = t - self.step_size * (1 / N * (C_1 @ t - C_2))
-            t = np.sign(t) * np.clip(np.abs(t) - self.step_size * self.lmda, 0, None)
-            t = proj(t, radius)
+            temp = np.sign(t) * np.clip(np.abs(t) - self.step_size * self.lmda, 0, None)
+            if np.linalg.norm(temp, ord=1) <= r:
+                t = temp
+            else:
+                t = proj(t, r)
             return t
 
         def _projected(t):
@@ -70,13 +74,14 @@ class DistributedLasso(Lasso):
         self.w = w
         self.m = self.w.shape[0]
 
-    def fit(self, X, Y, comparison=None):
+    def fit(self, X, Y, ground_truth, comparison=None):
+        r = np.linalg.norm(ground_truth, ord=1) * 1.01
         loss = []
         # Initialize parameters we need
-        N, p = X.shape
+        N, d = X.shape
         n = int(N / self.m)
         # Initialize iterates
-        theta = 0.5 * np.ones((self.m, p))
+        theta = 0.5 * np.ones((self.m, d))
         # Block data
         x = []
         y = []
@@ -91,15 +96,18 @@ class DistributedLasso(Lasso):
             E.append(y[i].T @ x[i])
 
         # define gradient methods
-        def _lagrangian(t, radius=10):
+        def _lagrangian(t):
             con = self.w @ t
             for i in range(self.m):
                 t[i] = con[i] - self.step_size / n * (-E[i] + t[i].T @ D[i])
-                t[i] = np.sign(t[i]) * np.clip(np.abs(t[i]) - self.step_size * self.lmda, 0, None)
-                # projection
-                temp = np.expand_dims(t[i].copy(), axis=1)
-                temp = proj(temp, radius)
-                t[i] = temp.squeeze()
+                temp = np.sign(t[i]) * np.clip(np.abs(t[i]) - self.step_size * self.lmda, 0, None)
+                if np.linalg.norm(temp, ord=1) <= r:
+                    t[i] = temp
+                else:
+                    # projection
+                    temp = np.expand_dims(t[i].copy(), axis=1)
+                    temp = proj(temp, r)
+                    t[i] = temp.squeeze()
             return t
 
         def _projected(t):
@@ -127,11 +135,13 @@ class LocalizedLasso(Lasso):
         super(LocalizedLasso, self).__init__(max_iteration, step_size, terminate_condition, solver_type, constraint_param)
         self.m = m
 
-    def fit(self, X, Y, comparison=None):
+
+    def fit(self, X, Y, ground_truth, comparison=None):
+        r = np.linalg.norm(ground_truth, ord=1) * 1.01
         loss = []
-        N, p = X.shape
+        N, d = X.shape
         n = int(N / self.m)
-        theta = 0.5 * np.ones((self.m, p))
+        theta = 0.5 * np.ones((self.m, d))
         x = []
         y = []
         for i in range(self.m):
@@ -143,13 +153,16 @@ class LocalizedLasso(Lasso):
             D.append(x[i].T @ x[i])
             E.append(y[i].T @ x[i])
 
-        def _lagrangian(t, radius=10):
+        def _lagrangian(t):
             for i in range(self.m):
                 t[i] = t[i] - self.step_size * (t[i].T @ D[i].T).T / n + self.step_size * E[i].squeeze() / n
-                t[i] = np.sign(t[i]) * np.clip(np.abs(t[i]) - self.step_size * self.lmda, 0, None)
+                temp = np.sign(t[i]) * np.clip(np.abs(t[i]) - self.step_size * self.lmda, 0, None)
+                if np.linalg.norm(temp, ord=1) <= r:
+                    t[i] = temp
+                else:
                 # projection
-                temp = np.expand_dims(t[i].copy(), axis=1)
-                temp = proj(temp, radius)
+                    temp = np.expand_dims(t[i].copy(), axis=1)
+                    temp = proj(temp, r)
                 t[i] = temp.squeeze()
             return t
 
