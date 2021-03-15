@@ -24,7 +24,7 @@ class Lasso(Solver):
             self.r = constraint_param
 
     def fit(self, X, Y, grount_truth, comparison=None):
-        r = np.linalg.norm(grount_truth, ord=1) * 1.01
+        r = np.linalg.norm(grount_truth, ord=1) * 10
         # initialize parameters we need
         loss = []
         N, d = X.shape
@@ -75,7 +75,7 @@ class DistributedLasso(Lasso):
         self.m = self.w.shape[0]
 
     def fit(self, X, Y, ground_truth, comparison=None):
-        r = np.linalg.norm(ground_truth, ord=1) * 1.01
+        r = np.linalg.norm(ground_truth, ord=1) * 10
         loss = []
         # Initialize parameters we need
         N, d = X.shape
@@ -137,7 +137,7 @@ class LocalizedLasso(Lasso):
 
 
     def fit(self, X, Y, ground_truth, comparison=None):
-        r = np.linalg.norm(ground_truth, ord=1) * 1.01
+        r = np.linalg.norm(ground_truth, ord=1) * 10
         loss = []
         N, d = X.shape
         n = int(N / self.m)

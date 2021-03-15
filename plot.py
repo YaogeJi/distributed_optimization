@@ -86,4 +86,5 @@ def plot(q:queue.Queue, config:dict):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
-    plt.show()
+    # plt.show()
+    plt.savefig('test.png')
